@@ -171,12 +171,14 @@ This will then allow LXD's own firewall rules to take effect.
 
 When firewalld daemon is started after lxd daemon, it breaks LXC iptables rules and especially rules taking care of containers internet access. To fix it, you could force firewalld daemon to start before lxd daemon.
 
-When using systemd, you have to add the `Before` parameter in the `/lib/systemd/system/lxd.socket` systemd file:
+When using systemd, you have to add the `After=` parameter in the `/lib/systemd/system/lxd.service` systemd file:
 ```
 [Unit]
-Description=LXD - unix socket
+Description=LXD - main daemon
+After=network-online.target openvswitch-switch.service lxcfs.service lxd.socket
+Requires=network-online.target lxcfs.service lxd.socket
 Documentation=man:lxd(1)
-Before=firewalld.service
+After=firewalld.service
 
 [...]
 ```
